@@ -1,0 +1,57 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+
+{% block title %}
+NewsPaper
+{% endblock title %}
+
+{% block content %}
+<h1 class="text-center">Все публикации<span class="text-muted fs-6 fw-normal">Всего: {{ page_obj.paginator.count }}</span></h1>
+    {% if is_not_subscriber %}
+        <p class="text-center"><a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-sm">Подписаться</a></p>
+    {% endif %}
+<hr>
+
+<ul class = "list-group list-group-flush">
+    {% for post in category_news_list %}
+        <li class = "list-group-item">
+            <small class = "fw-bold">{{ post.date | date:'d M Y' }}</small>
+            <a href="{% url 'post_detail' post.id %}">{{ post.title }}</a>
+            <small class = "text-muted">(автор: {{ post.author }})</small><br>
+            <small class = "fw-bold">категории:
+                {% for category in post.category.all %}
+                <a href="{% url 'category_list' category.id %}">{{ category }}</a>
+                {% endfor %}
+            </small>
+            <p>{{ post.text | truncatechars:210 }}</p>
+        </li>
+    {% endfor %}
+</ul>
+
+
+{% if is_paginated %}
+<nav aria-label="...">
+    <ul class = "pagination pagination-sm justify-content-center">
+    {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link " href="?page=1">Начало</a></li>
+        <li class="page-item"><a class="page-link " href="?page={{ page_obj.previous_page_number }}"><<<</a></li>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <li class="page-item active"><a class="page-link">{{ num }}</a></li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item"><a class = "page-link" href="?page={{ num }}">{{ num }}</a></li>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link " href="?page={{ page_obj.next_page_number }}">>>></a></li>
+        <li class="page-item"><a class="page-link " href="?page={{ page_obj.paginator.num_pages }}">Конец</a></li>
+    {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock content %}
